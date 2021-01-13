@@ -1,221 +1,199 @@
-
 $(document).ready(function (){
 
-    //Gloabalvar decorations
-
-var cityArray = [];
-
+/// Global variable declarations
+var cityList = [];
 var cityname;
 
-//local storage function
-
+// local storage functions
 lsCityList();
 lsWeather();
 
-//Dispays the city entered by user into DOM
 
+// This function displays the city entered by the user into the DOM
 function renderCities(){
     $("#cityList").empty();
-    $("#cityInput").val('');
-
-    for (i=0; i < cityArray; i++){
-        var a = $('<a>');
+    $("#cityInput").val("");
+    
+    for (i=0; i<cityList.length; i++){
+        var a = $("<a>");
         a.addClass("list-group-item list-group-item-action list-group-item-primary city");
-        a.attr("data-name", cityArray[i]);
-        a.text(cityArray[i]);
+        a.attr("data-name", cityList[i]);
+        a.text(cityList[i]);
         $("#cityList").prepend(a);
-    }
+    } 
 }
 
-//Pulls city list array from ls
-
+// This function pulls the city list array from local storage
 function lsCityList() {
     var savedCities = JSON.parse(localStorage.getItem("cities"));
-$("#cityInput").text(savedCities);
-console.log(savedCities)
-    if (savedCities !== null){
-
-        cityArray= savedCities;
+    
+    if (savedCities !== null) {
+        cityList = savedCities;
     }
+    
     renderCities();
-}
+    }
 
-//pull city to display weather forecast
-
-function lsWeather(){
-
+// This function pull the current city into local storage to display the current weather forecast on reload
+function lsWeather() {
     var savedWeather = JSON.parse(localStorage.getItem("currentCity"));
 
-    if (savedWeather !== null){
+    if (savedWeather !== null) {
         cityname = savedWeather;
+
         displayWeather();
-        display5DayForecast();
+        displayFiveDayForecast();
     }
 }
 
-//saves city array to ls
-
+// This function saves the city array to local storage
 function storeArray() {
-    localStorage.setItem("cities", JSON.stringify(cityArray));
+    localStorage.setItem("cities", JSON.stringify(cityList));
+    }
 
-}
+// This function saves the currently display city to local storage
+function storeCity() {
 
-//saves current display to ls
-
-function storeCurrent() {
     localStorage.setItem("currentCity", JSON.stringify(cityname));
-
 }
+      
 
-//event handler for search button
-
-$("#citySearch").on("click", function(event){
+// Click event handler for city search button
+$("#citySearchBtn").on("click", function(event){
     event.preventDefault();
-
 
     cityname = $("#cityInput").val().trim();
     if(cityname === ""){
-        alert("Please enter a city to look up.")
-    }else if (cityArray.length >= 5){
-        cityArray.shift();
-        cityArray.push(cityname)
+        alert("Please enter a city to look up")
+
+    }else if (cityList.length >= 5){  
+        cityList.shift();
+        cityList.push(cityname);
+
     }else{
-        cityArray.push(cityname);
+    cityList.push(cityname);
     }
-    storeCurrent();
+    storeCity();
     storeArray();
     renderCities();
     displayWeather();
-   display5DayForecast();
-
+    displayFiveDayForecast();
 });
 
-//event handler if user hits enter after entering city search
-
-$("#cityInput").keypress(function (e){
-
+// Event handler for if the user hits enter after entering the city search term
+$("#cityInput").keypress(function(o){
     if(e.which == 13){
-        $("#citySearch").click();
+        $("#citySearchBtn").click();
     }
 })
 
-//function runs the open weather API AJAX call
+// This function runs the Open Weather API AJAX call and displays the current city, weather, and 5 day forecast to the DOM
+async function displayWeather() {
 
-async function displayWeather(){
-
-    var queryURL = "https://api.openweathermap.org/data/2.5/weather?q=" + cityname + "&appid=03a3736e09588483eda83a7891f2b76e";
+    var queryURL = "https://api.openweathermap.org/data/2.5/weather?q=" + cityname + "&units=imperial&appid=03a3736e09588483eda83a7891f2b76e";
 
     var response = await $.ajax({
         url: queryURL,
         method: "GET"
-      });
+      })
         console.log(response);
 
-        var currentWeatherDiv = $("<div class='card-body' id='currentWeather'>");
-        var getCurrentCity = response.name;
+        var WeatherDiv = $("<div class='card-body' id='currentWeather'>");
+        var getCity = response.name;
         var date = new Date();
-        var val=(date.getMonth()+1)+"/"+date.getDate()+"/"+date.getFullYear();
-
-        var getCurrentWeatherIcon = response.weather[0].icon;
-        var displayCurrentWeatherIcon = $("<img src = http://openweathermap.org/img/wn/" + getCurrentWeatherIcon + "@2x.png />");
-        
-        var currentCityEl = $("<h3 class = 'card-body'>").text(getCurrentCity+" ("+val+")");
-        currentCityEl.append(displayCurrentWeatherIcon);
-        currentWeatherDiv.append(currentCityEl);
-        
+        var calendar=(date.getMonth()+1)+"/"+date.getDate()+"/"+date.getFullYear();
+        var getWeatherIcon = response.weather[0].icon;
+        var displayWeatherIcon = $("<img src = http://openweathermap.org/img/wn/" + getWeatherIcon + "@2x.png />");
+        var currentCity = $("<h3 class = 'card-body'>").text(getCity+" ("+calendar+")");
+        currentCity.append(displayWeatherIcon);
+        WeatherDiv.append(currentCity);
         var getTemp = response.main.temp.toFixed(1);
-        var tempEl = $("<p class='card-text'>").text("Temperature: "+getTemp+"° F");
-        currentWeatherDiv.append(tempEl);
-        
+        var temp = $("<p class='card-text'>").text("Temperature: "+getTemp+"° F");
+        WeatherDiv.append(temp);
         var getHumidity = response.main.humidity;
-        var humidityEl = $("<p class='card-text'>").text("Humidity: "+getHumidity+"%");
-        currentWeatherDiv.append(humidityEl);
-        
+        var humidityp = $("<p class='card-text'>").text("Humidity: "+getHumidity+"%");
+        WeatherDiv.append(humidityp);
         var getWindSpeed = response.wind.speed.toFixed(1);
-        var windSpeedEl = $("<p class='card-text'>").text("Wind Speed: "+getWindSpeed+" mph");
-        currentWeatherDiv.append(windSpeedEl);
-       
+        var windSpeed = $("<p class='card-text'>").text("Wind Speed: "+getWindSpeed+" mph");
+        WeatherDiv.append(windSpeed);
         var getLong = response.coord.lon;
         var getLat = response.coord.lat;
-
-
-        var uvURL = "https://api.openweathermap.org/data/2.5/uvi?lat="+getLat+"&lon="+getLong+"&appid=03a3736e09588483eda83a7891f2b76e";
-        var uvResponse = await $.ajax   ({
-        url: uvURL,
+        
+        var locationURL = "https://api.openweathermap.org/data/2.5/uvi?appid=03a3736e09588483eda83a7891f2b76e&lat="+getLat+"&lon="+getLong;
+        var uvResponse = await $.ajax({
+            url: locationURL,
             method: "GET"
-        });
+        })
 
         // getting UV Index info and setting color class according to value
-        var getUVIndex = uvResponse.value;
-        var uvNumber = $("<span>");
-        if (getUVIndex > 0 && getUVIndex <= 2.99){
-            uvNumber.addClass("low");
-        }else if(getUVIndex >= 3 && getUVIndex <= 5.99){
-            uvNumber.addClass("moderate");
-        }else if(getUVIndex >= 6 && getUVIndex <= 7.99){
-            uvNumber.addClass("high");
-        }else if(getUVIndex >= 8 && getUVIndex <= 10.99){
-            uvNumber.addClass("vhigh");
+        var getlocIndex = uvResponse.value;
+        var locNumber = $("<span>");
+        if (getlocIndex > 0 && getlocIndex <= 2.99){
+            locNumber.addClass("low");
+        }else if(getlocIndex >= 3 && getlocIndex <= 5.99){
+            locNumber.addClass("moderate");
+        }else if(getlocIndex >= 6 && getlocIndex <= 7.99){
+            locNumber.addClass("high");
+        }else if(getlocIndex >= 8 && getlocIndex <= 10.99){
+            locNumber.addClass("vhigh");
         }else{
-            uvNumber.addClass("extreme");
+            locNumber.addClass("extreme");
         } 
-        uvNumber.text(getUVIndex);
-        var uvIndexEl = $("<p class='card-text'>").text("UV Index: ");
-        uvNumber.appendTo(uvIndexEl);
-        currentWeatherDiv.append(uvIndexEl);
-        $("#weatherContainer").html(currentWeatherDiv);
-    }
+        locNumber.text(getlocIndex);
+        var locIndex = $("<p class='card-text'>").text("UV Index: ");
+        locNumber.appendTo(locIndex);
+        WeatherDiv.append(locIndex);
+        $("#weatherContainer").html(WeatherDiv);
+}
 
 // This function runs the AJAX call for the 5 day forecast and displays them to the DOM
-async function display5DayForecast() {
+async function displayFiveDayForecast() {
 
-    var queryURL = "https://api.openweathermap.org/data/2.5/forecast?q="+cityname+"&units=imperial&appid=d3b85d453bf90d469c82e650a0a3da26";
+    var queryURL = "https://api.openweathermap.org/data/2.5/forecast?q="+cityname+"&units=imperial&appid=03a3736e09588483eda83a7891f2b76e";
 
     var response = await $.ajax({
         url: queryURL,
         method: "GET"
-      });
-      var forecastDiv = $("<div  id='fiveDayForecast'>");
-      var forecastHeader = $("<h5 class='card-header border-secondary'>").text("5 Day Forecast");
-      forecastDiv.append(forecastHeader);
-      var cardDeck = $("<div  class='card-deck'>");
-      forecastDiv.append(cardDeck);
+      })
+      var forecast = $("<div  id='fiveDayForecast'>");
+      var fcHeader = $("<h5 class='card-header border-secondary'>").text("5 Day Forecast");
+      forecast.append(fcHeader);
+      var fiveDaySection = $("<div  class='card-deck'>");
+      forecast.append(fiveDaySection);
       
       console.log(response);
       for (i=0; i<5;i++){
-          var forecastCard = $("<div class='card mb-3 mt-3'>");
-          var cardBody = $("<div class='card-body'>");
+          var forecastSection = $("<div class='card mb-3 mt-3'>");
+          var fcBody = $("<div class='card-body'>");
           var date = new Date();
-          var val=(date.getMonth()+1)+"/"+(date.getDate()+i+1)+"/"+date.getFullYear();
-          var forecastDate = $("<h5 class='card-title'>").text(val);
+          var calendar=(date.getMonth()+1)+"/"+(date.getDate()+i+1)+"/"+date.getFullYear();
+          var forecastDate = $("<h5 class='card-title'>").text(calendar);
           
-        cardBody.append(forecastDate);
-        var getCurrentWeatherIcon = response.list[i].weather[0].icon;
-        console.log(getCurrentWeatherIcon);
-        var displayWeatherIcon = $("<img src = http://openweathermap.org/img/wn/" + getCurrentWeatherIcon + ".png />");
-        cardBody.append(displayWeatherIcon);
+        fcBody.append(forecastDate);
+        var getWeatherIcon = response.list[i].weather[0].icon;
+        console.log(getWeatherIcon);
+        var displayWeatherIcon = $("<img src = http://openweathermap.org/img/wn/" + getWeatherIcon + ".png />");
+        fcBody.append(displayWeatherIcon);
         var getTemp = response.list[i].main.temp;
-        var tempEl = $("<p class='card-text'>").text("Temp: "+getTemp+"° F");
-        cardBody.append(tempEl);
+        var temp = $("<p class='card-text'>").text("Temp: "+getTemp+"° F");
+        fcBody.append(temp);
         var getHumidity = response.list[i].main.humidity;
-        var humidityEl = $("<p class='card-text'>").text("Humidity: "+getHumidity+"%");
-        cardBody.append(humidityEl);
-        forecastCard.append(cardBody);
-        cardDeck.append(forecastCard);
+        var humidityp = $("<p class='card-text'>").text("Humidity: "+getHumidity+"%");
+        fcBody.append(humidityp);
+        forecastSection.append(fcBody);
+        fiveDaySection.append(forecastSection);
       }
-      $("#forecastContainer").html(forecastDiv);
-    
+      $("#forecastContainer").html(forecast);
+    }
 
 // This function is used to pass the city in the history list to the displayWeather function
-function historyDisplayWeather(){
+function displayHistoryWeather(){
     cityname = $(this).attr("data-name");
     displayWeather();
-    display5DayForecast();
+    displayFiveDayForecast();
     console.log(cityname);
     
 }
 
-$(document).on("click", ".city", historyDisplayWeather);
-}
-
+$(document).on("click", ".city", displayHistoryWeather);
 })
