@@ -1,4 +1,8 @@
-//Gloabalvar decorations
+
+$(document).ready(function (){
+
+    //Gloabalvar decorations
+
 var cityArray = [];
 
 var cityname;
@@ -12,10 +16,10 @@ lsWeather();
 
 function renderCities(){
     $("#cityList").empty();
-    $("#cityInput").val("");
+    $("#cityInput").val('');
 
-    for (i=0; i<cityArray; i++){
-        var a = $("<a>");
+    for (i=0; i < cityArray; i++){
+        var a = $('<a>');
         a.addClass("list-group-item list-group-item-action list-group-item-primary city");
         a.attr("data-name", cityArray[i]);
         a.text(cityArray[i]);
@@ -27,7 +31,8 @@ function renderCities(){
 
 function lsCityList() {
     var savedCities = JSON.parse(localStorage.getItem("cities"));
-
+$("#cityInput").text(savedCities);
+console.log(savedCities)
     if (savedCities !== null){
 
         cityArray= savedCities;
@@ -43,9 +48,8 @@ function lsWeather(){
 
     if (savedWeather !== null){
         cityname = savedWeather;
-
-       // displayWeather();
-        //display5DayForecast();
+        displayWeather();
+        display5DayForecast();
     }
 }
 
@@ -82,13 +86,13 @@ $("#citySearch").on("click", function(event){
     storeArray();
     renderCities();
     displayWeather();
-   //display5DayForecast();
+   display5DayForecast();
 
 });
 
 //event handler if user hits enter after entering city search
 
-$("#cityInput").keypress(function(e){
+$("#cityInput").keypress(function (e){
 
     if(e.which == 13){
         $("#citySearch").click();
@@ -104,27 +108,33 @@ async function displayWeather(){
     var response = await $.ajax({
         url: queryURL,
         method: "GET"
-      })
+      });
         console.log(response);
 
         var currentWeatherDiv = $("<div class='card-body' id='currentWeather'>");
         var getCurrentCity = response.name;
         var date = new Date();
         var val=(date.getMonth()+1)+"/"+date.getDate()+"/"+date.getFullYear();
+
         var getCurrentWeatherIcon = response.weather[0].icon;
         var displayCurrentWeatherIcon = $("<img src = http://openweathermap.org/img/wn/" + getCurrentWeatherIcon + "@2x.png />");
+        
         var currentCityEl = $("<h3 class = 'card-body'>").text(getCurrentCity+" ("+val+")");
         currentCityEl.append(displayCurrentWeatherIcon);
         currentWeatherDiv.append(currentCityEl);
+        
         var getTemp = response.main.temp.toFixed(1);
         var tempEl = $("<p class='card-text'>").text("Temperature: "+getTemp+"° F");
         currentWeatherDiv.append(tempEl);
+        
         var getHumidity = response.main.humidity;
         var humidityEl = $("<p class='card-text'>").text("Humidity: "+getHumidity+"%");
         currentWeatherDiv.append(humidityEl);
+        
         var getWindSpeed = response.wind.speed.toFixed(1);
         var windSpeedEl = $("<p class='card-text'>").text("Wind Speed: "+getWindSpeed+" mph");
         currentWeatherDiv.append(windSpeedEl);
+       
         var getLong = response.coord.lon;
         var getLat = response.coord.lat;
 
@@ -133,7 +143,7 @@ async function displayWeather(){
         var uvResponse = await $.ajax   ({
         url: uvURL,
             method: "GET"
-        })
+        });
 
         // getting UV Index info and setting color class according to value
         var getUVIndex = uvResponse.value;
@@ -154,7 +164,7 @@ async function displayWeather(){
         uvNumber.appendTo(uvIndexEl);
         currentWeatherDiv.append(uvIndexEl);
         $("#weatherContainer").html(currentWeatherDiv);
-
+    }
 
 // This function runs the AJAX call for the 5 day forecast and displays them to the DOM
 async function display5DayForecast() {
@@ -164,7 +174,7 @@ async function display5DayForecast() {
     var response = await $.ajax({
         url: queryURL,
         method: "GET"
-      })
+      });
       var forecastDiv = $("<div  id='fiveDayForecast'>");
       var forecastHeader = $("<h5 class='card-header border-secondary'>").text("5 Day Forecast");
       forecastDiv.append(forecastHeader);
@@ -205,4 +215,7 @@ function historyDisplayWeather(){
     
 }
 
-$(document).on("click", ".city", historyDisplayWeather);}}
+$(document).on("click", ".city", historyDisplayWeather);
+}
+
+})
