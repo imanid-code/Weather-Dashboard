@@ -17,5 +17,11 @@ This  is the layout of The Weather Dashboard.
 
 ![layout](assets/layout.png).
 
-On the left under the header ***Search for city: *** 
+
+On the left under the header ***Search for city: ***  
+![search](assets/search.png)
 , is a input box where users input the city and find out their current weather along with the 5 day forecast. 
+
+The five most recently searched cities will remain in the search column. 
+
+![recent](assets/recentcities.png)
