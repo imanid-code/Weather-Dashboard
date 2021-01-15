@@ -15,7 +15,7 @@ https://imanid-code.github.io/Weather-Dashboard/
 
 This  is the layout of The Weather Dashboard. 
 
-![layout](assets/layout.png)
+(assets/layout.png)
 
 
 On the left under the header SEARCH FOR CITY: 
