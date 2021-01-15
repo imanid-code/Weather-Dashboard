@@ -15,17 +15,17 @@ https://imanid-code.github.io/Weather-Dashboard/
 
 This  is the layout of The Weather Dashboard. 
 
-![full](assets/layout.jpg)
+![full](assets/layout.png)
 
 
 On the left under the header SEARCH FOR CITY: 
 
-![search](assets/search.png)
+![search](./assets/search.png)
 , is a input box where users input the city and find out their current weather along with the 5 day forecast. 
 
 The five most recently searched cities will remain in the search column. 
 
-![recent](assets/recentcities.png)
+![recent](./assets/recentcities.png)
 
 
 The center of the page is divided into two horizontal sections. The top section is the Current Weather. 
